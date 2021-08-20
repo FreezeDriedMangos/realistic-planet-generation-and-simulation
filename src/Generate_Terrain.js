@@ -498,7 +498,7 @@ function assignElevation(isSecondPass, doingSecondPass) {
          
          if(!isSecondPass) map.r_elevation[r] = 0
          
-         map.r_elevation[r] += (params.plateEvents.mountainWeight*mountainStrength - params.plateEvents.subductionWeight*(subductionStrength) + params.plateEvents.antiSubductionWeight*antiSubductionStrength - params.plateEvents.riftValleyWeight*riftValleyStrength + params.plateEvents.neighboringOceanWeight*(1-(neighboringOceanStrength)) - params.plateEvents.neighboringLandWeight*(1-(neighboringLandStrength))) * (isSecondPass ? 0.1 : 1)
+         map.r_elevation[r] += (params.plateEvents.mountainWeight*mountainStrength - params.plateEvents.subductionWeight*(subductionStrength) + params.plateEvents.antiSubductionWeight*antiSubductionStrength - params.plateEvents.riftValleyWeight*riftValleyStrength + params.plateEvents.neighboringOceanWeight*(1-(neighboringOceanStrength)) - params.plateEvents.neighboringLandWeight*(1-(neighboringLandStrength))) * (isSecondPass ? params.worldgenSettings.secondPassStrength : 1)
          
          
          // let [riftValleyDist, riftValleyStr, _] = riftValleyEvents.reduce( (acc, [er, strength]) => 

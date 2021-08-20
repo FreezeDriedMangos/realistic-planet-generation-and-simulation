@@ -1,4 +1,4 @@
-let VERSION = "v3.1.0"
+let VERSION = "v3.1.1"
 const TITLE = "Realistic Planet Generation"
 const PREPARE_EDGES_AND_TRIANGLES = true // WARNING: more or less doubles worldgen time
 
@@ -62,7 +62,7 @@ let params = {
       volcanismDepthRequirement: 0.7,
       volcanoChance: 0.4,
       
-      
+      secondPassStrength: 0.1,
       
    },
    
