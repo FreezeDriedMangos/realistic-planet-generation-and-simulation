@@ -1,0 +1,93 @@
+Planet gen todo
+
+	◦	Replase all storing colors with functions, so voronoi draw takes a (r)=>color instead of a [r=>color]
+	✓	Add in nightness and lattitude to temperature calc
+	✓		✓	Maybe make temperature only update to a new value (aside from wind and diffusion) in the day, and just gradually cool at night
+	◦	Add in water temp to temperature calc
+	✓		✓	Add in the param wind pull distance
+	✓	Make clouds continuous
+	✓		✓	Add in cloud diffusion
+	✓	Add in averageRainfall calc
+	✓	Make climate depend on that
+	◦	
+	✓	Rivers
+	✓	A “wetness” value that combines adjacency to river with rainfall
+	✓	Regions adjacent to a river on multiple edges are more wet
+	✓	Use wetness instead of humidity for climate calculation 
+	✓	 Humidity gradually falls globally until after a certain number of simulation steps, rainclouds are unable to form and clouds become rare
+	✓	Lakes - only exist above elevation 0
+	✓	t_lake = max(0, 0.01*storedRainfall[t]-2)
+	◦	Maybe involve elevation
+	◦	t_lake = max(0, 0.01*storedRainfall[t]-2*(elevation[t]+1))
+	✓	Draw a circle for each lake, centered at the vertex that defines the triangle the lake belongs to, with radius t_lake
+	✓	Even better, draw a triangle
+	◦	And even more better, adjust the corners of the triangle so that corners belonging to a region with higher elevation are pulled in towards the center, and the opposite low elevation corners
+	✓	Factor lakes into the wetness value
+	✓	e_t is always empty
+	✓	Test humidity now that I’ve added wetness/groundwater as a factor
+	✓	Try diffusing temperature the same way as humidity 
+	✓	Increase temperature’s dependance on day/night 
+	✓	and season
+	◦	Make wind prefer to blow downhill
+	✓	Make humidity diffuse slower and regenerate slower, hopefully this will decrease frequency of rain and increase frequency of clouds
+	✓	Make wind cooling more important and elevation cooling less important 
+	✓	Increase humidity on land slightly
+	✓	Make rain ever so slightly easier to form
+	✓	Have mountains slow down diffusion 
+	✓	and block wind (the higher the elevation, the less wind matters)
+	◦	Make wind push temperature better
+	✓		✓	Wetness diffusion 
+	◦	Wetness can be NaN on the border
+	◦	Make south pole regions (rendered at the top of the screen) neighbor eachother
+	◦	Flip rendering? So north is at the top and south at the bottom
+	◦	  Draw nightness shadow separately, so that rivers aren’t glow in the dark
+	◦	Do the same for clouds
+	◦	Call advanceWeather only once every 10ish updates, and lerp between the values for the inbetween updates
+	◦	Wait ~0.1 seconds between each frame, minus the time it took to draw and update
+	◦	Scroll pane using clip()
+	◦	Pregenerate valleys like redblobgames and make rivers harder to generate outside those valleys - also use them to draw ridges and valleys in quaddrawing
+	✓		✓	Mountain shadows- increase nightness if a mountain is inbetween this r and the sun
+	✓	Store r_nightness so that it doesn’t need to be recalculated so much
+	✓	Quad rendering (it’s really not so bad, basically it’s rendering by edge instead of by region)
+	✓	Step1: triangle drawing
+	✓	Step2: enable webgl and fix all bugs
+	✓	Replace all calls to text() with drawText()
+	✓	Fix valley rendering
+	✓	Determine when to render a ridge and when to render a valley
+	◦	Add in a “max historical river” value and use that to determine ridge/valley
+	✓	Instead of simply setting vertex color, set vertex elevation, and have the shader translate elevation into color (alternate, potentially easier but less flexible: pass wetness, elevation, and temperature in as rgb channel values)
+	✓	Create an elevation/wetness texture
+	✓	Create a temperature texture
+	✓	Render the elev/temp/wetness map to an image
+	✓	Create a shader that will read an elev/temp/wetness texture and the two temperature/elevation textures and output the final image 
+	✓		✓	Use filter() to apply the above shader to the e/t/w texture and draw the image
+	✓	Looks like shaders don’t work on graphics objects. Maybe just try overwriting the pixel data of the graphics object?
+	✓	Only create this image when a button is pushed - it’s expensive! When creating it, store the current weather step and regenerate it only if the weather step is different
+	✓	Ignore zoom and scrollX/Y when creating it - factor them in when drawing it
+	◦	Make a line drawing function that draws it out of triangles (takes start point, end point, and thickness)
+	◦	Render clouds and nightness separately
+	◦	Put default canvas back to the p2d renderer? Now that I know different canvases can exist with different renderers
+	◦	Make more efficient by replacing calls to get() and set() with use of the pixels[] array
+
+
+Needed for rivers: 
+1) convert voronoi to delauney triangles with a way to 
+* get a list of triangle ids
+* get the (1-3) neighbor triangles for a given triangle
+* get the (1-3) regions a given triangle helps create
+* get the edges that border a given region
+* get the 2 triangles that correspond to a given edge
+2) create t_elevation which is the average of the r_elevation values for each of its regions, create t_builtUpRainfall
+3) create e_riverflow
+
+
+Now, e_riverflow will grow to match max(0, 0.1 * t_builtUpRainfall) of its upstream triangle, but only change a maximum of (elevation difference)*0.05 every weather step. every weather step it will decrease t_builtUpRainfall of its upstream triangle by e_riverflow and increase t_builtUpRainfall of its downstream triangle by e_riverflow, unless its downstream triangle is ocean
+
+Note: each endpoint of an edge corresponds to a triangle. The downstream side of the edge is the endpoint whose triangle has a lower elevation 
+
+
+
+For quad rendering, need to add a way to
+* get a list of edge ids
+* get the two triangles that make up an edge and the two regions an edge separates
+* get the temp, wetness, cloudcover, and nightness for a given triangle

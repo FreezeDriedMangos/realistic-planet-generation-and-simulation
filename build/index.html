@@ -1,0 +1,115 @@
+<html>
+<head>
+  
+  
+  <title>realistic-planet-generation</title>
+
+  <style type="text/css">
+
+  * {
+
+      -webkit-touch-callout: none;
+
+      -webkit-user-select: none;
+
+  }
+
+  
+
+  html, body { margin: 0;
+
+               height: 100%;
+
+               overflow: hidden;
+
+               position: fixed;
+
+  }
+
+  
+
+  </style>
+
+  
+
+  <script type="text/javascript">
+
+      window.onerror = (msg, url, line, column, error) => {
+
+        const message = {
+
+          message: msg,
+
+          url: url,
+
+          line: line,
+
+          column: column,
+
+          error: JSON.stringify(error)
+
+        }
+
+
+
+        if (window.webkit) {
+
+          window.webkit.messageHandlers.error.postMessage(message);
+
+        } else {
+
+          console.log("Error:", message);
+
+        }
+
+      };
+
+  </script>
+
+  
+
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+  <meta charset="utf-8">
+
+      
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+      
+
+  <meta name="mobile-web-app-capable" content="yes">
+
+      
+
+  <link rel="apple-touch-icon" href="data:image/png;base64,realistic-planet-generation">
+
+  
+  
+
+  <script language="javascript" type="text/javascript" src="libraries/p5.min.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/Colors.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/Generate_Terrain.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/Generate_Weather.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/Projections.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/Utils.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/VoronoiDraw.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/magicgui.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/pixelfont.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/rng.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/voronoi.js"></script>
+  <script language="javascript" type="text/javascript" src="../src/A_Worldgen.js"></script>
+  
+
+  <!-- This line removes any default padding and style.
+       You might only need one of these values set. -->
+  <style> body { padding: 0; margin: 0; } </style>
+</head>
+
+<body>
+</body>
+</html>

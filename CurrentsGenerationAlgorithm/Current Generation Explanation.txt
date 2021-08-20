@@ -1,0 +1,11 @@
+Explanation of currents generation algorithm
+
+Pick all cells that are at 15deg and not separated by land, and put them in a group. Do the same for 45 deg and 75 deg
+
+Voronoi. Assign each region to the set belonging to the picked cell it is closest to according to bfs (for each region, bfs out. Assign this region to the group belonging to the first seed region found. If no seed regions are found, create a new group with this region as the seed)
+Merge all sets whose owner is in the same group
+If two groups whose owners belong to the same lattitude end up touching, merge the two groups
+The result is the currents map of the planet. Each group represents a gyre.
+Finally, for each region, assign its current vector according to this: sum the directions to neighbors that are a greater distance from the edge than this region is; set the current to be one of the two vectors perpendicular to this resultant vector; which perpendicular depends on whether the gyre is clockwise or counterclockwise; [-y, x] for clockwise and [y, -x] for counterclockwise. Finally, set the magnitude of the current vector to 1
+
+Note: during the sum, if you subtract directions to neighbors that are either a smaller distance from the edge or belong to a different gyre, you can get even more accurate currents

@@ -1,0 +1,208 @@
+Currents
+
+Just follow the gerrymandering simulation video’s annealing process
+
+Where reward is given on a cell-by-cell basis of simply 
+R = -mag(sum(flow in) - sum(flow out))
+
+ie the closer the flow in is to being perfectly matched to the flow out, the more reward
+
+Flow exists on the edge between two nodes, so changing the value of one flow will change the reward for two cells
+
+
+
+Note: to get coriolis effect accurate currents, give bonus reward for flow on the equator moving east, and just above the equator moving west. Same for 30 and 60 degrees lattitude
+
+
+
+// costsByCell = []
+currents = [{}] // from, to (array of objs because an array of arrays would be very inefficient)
+neighbors = [][] // cellId => list of neighborCellIds
+totalReward = cells.reduce((acc, cell) => acc + reward(cell), 0)
+
+function reward(cell) {
+inflow = neighbors[cell].reduce((acc, n) => add(acc, currents[n][cell]), [0,0]);
+outflow = neighbors[cell].reduce((acc, n) => add(acc, currents[cell][n]), [0,0]);
+
+// percentage in the same direction:
+// 1 for perfectly in the same direction, 0 for perfectly orthogonal, -1 for perfectly opposite 
+// plus difference in magnitude 
+return proj(inflow, outlfow) / magnitude(inflow)  + Math.abs(magnitude(outflow) - magnitude(inflow)
+}
+
+function changeFlow(from, to, newFlow) {
+totalReward -= reward(from)
+totalReward -= reward(to)
+
+currents[from][to] = newFlow
+
+totalReward += reward(from)
+totalReward += reward(to)
+}
+
+function anneal(heatPeriod, coolPeriod, iterations, hotFlukeChance, coolFlukeChance, changeWeight, randomFunc) {
+
+for(let i = 0; i < iterations; i++) {
+
+for(let p = 0; p < heatPeriod+coolPeriod; p++) {
+
+let flukeChance = p < coolPeriod ? coolFlukeChance : hotFlukeChance
+
+let from = currents.length * randFunc()
+let toOptions = Object.keys(currents[from])
+let to = toOptions[toOptions.length * randFunc()]
+
+let [dlat, dlon] = currents[from][to]
+let oldFlow = currents[from][to]
+let change = changeWeight * randFunc()
+dlat *= change
+dlon *= change
+
+let oldReward = totalReward
+changeFlow(from, to, [dlat, dlon])
+
+if (totalReward >= oldReward) continue
+if (randFunc() < flukeChance) continue
+
+changeFlow(from, to, oldFlow);
+}
+
+}
+
+}
+
+
+
+
+
+New strat for wind moving heat/humidity
+For each cell, find the neighbor that it blows into
+Compare cell’s current temp to cell’s base temp
+The difference will be called the heldHeat
+Compare cell’s current temp to neighbor’s base temp
+The difference will be called the potentialHeat
+Take the sigmoid of the windstrength multiplied by some constant
+This value represents the percentage of the heldHeat that will be subtracted from the cell and the percentage of the potentialHeat that will be added to the neighbor
+
+All cells are then averaged with their base temps
+
+
+
+
+New currents strat
+Use a force-based model
+Every water cell gets a set of forces applied to it, and the sum of those forces is the outcurrent
+Forces: coriolis effect, entrainment (every cell gets a fraction of each of its neighbors final force applied to it), land pushback
+
+
+New strat
+	1.	First, assign coriolis effect currents to each water tile
+	2.	Then, for each water tile, 
+	1.	for each neighbor, evaluate (sin(angle between total inflow and direction to neighbor)/2 + 0.5)^2 ; 
+	1.	Note: raise this to a higher power for more consolidated currents
+	2.	Add more terms to this sin value to change how the currents flow
+	2.	sum up those values, and for each neighbor, assign a current strength into it of mag(inflow)*sinValue / totalSinValue
+	3.	Repeat the above step a given number of times
+
+
+function coriolisCurrent(r) {
+let [lat, lon] = map.r_latlon[r]
+let a = Math.PI / 30
+let q = 193
+return -Math.cos(a*lat) + Math.pow(2*Math.cos(0.5*a*lat), 2*q) - Math.pow(2*Math.cos(0.5*a*(lat+30)), 2*q)
+}
+
+
+for(let i = 0; i < numIterations; i++){
+
+const consolidationFactor = 2
+let nextcurrents = []
+
+watercells.forEach(r => {
+
+nextcurrents[r] = {}
+
+let inflow = ...; // if first iteration, inflow = coriolisCurrent(r), else it equals the other thing I have in the previous implementation
+let maginflow = magnitude(inflow);
+
+let weights = {}
+let totalWeight = 0
+
+Object.keys(currents[r]).forEach(nr => {
+
+let dir = dirTo(r, nr)
+let angle = Math.acos(dot(inflow, dir) / (magnitude(inflow) * magnitude(dir)))
+let weight = Math.pow(0.5*Math.sin(angle)+0.5, consolidationFactor)
+weights[nr] = weight
+totalWeight += weight
+
+})
+
+Object.keys(currents[r]).forEach(nr => {
+
+nextcurrents[r][nr] = maginflow * weights[nr]/totalWeight
+
+})
+
+})
+
+currents = nextcurrents
+
+}
+
+
+That one worked close enough
+Humidity should be based on ocean temperature
+Clouds should be based on air temperature (and humidity)
+
+
+Try assigning all inflow only to the best neighbor, unless the two best are within 50% error
+
+Try sampling the map as a grid, and assigning flow using that map
+
+
+
+Try doing an event system
+Imagine running your finger along a map and putting a pin wherever something changes
+
+So I’d start at a western equatorial coast, put a pin that says “west” and move east
+Then hit a coastline and put a pin that says “north and south” then follow those two directions
+When a full loop has been made, repeat for all places where a landmass passes through the equator. Do the same thing for 30deg and 60deg lattitudes
+
+Then, to assign currents to each region, draw a line from each pin to the next pin. 
+Bam, currents
+
+
+
+For scroll pane: https://github.com/processing/p5.js/issues/3998
+
+https://editor.p5js.org/stalgiag/sketches/J7QMRk5tb
+
+
+
+Currents:
+
+http://www.emmalindhagen.com/2016/01/worldbuilding-wednesday-step-by-step-for-ocean-currents/
+
+Idea: voronoi
+Pick all cells that are at 15deg and not separated by land, and put them in a group. Do the same for 45 deg and 75 deg
+
+Voronoi. Assign each region to the set belonging to the picked cell it is closest to
+Merge all sets whose owner is in the same group
+If two groups whose owners belong to the same lattitude end up touching, merge the two groups
+The result is the currents map of the planet. Each group represents a gyre. The closer a region is to the edge of its group, the stronger the current. The closer to the center, the closer to perpendicular the current will be to the current at the edge of the group, and the weaker it will be
+
+(Note: only merge groups if they share a boundary of N regions or more. Note how in this picture, india has two gyres, when my algorithm would only produce one https://images.app.goo.gl/F56Tii66opcSf7bX9)
+
+
+￼
+
+Note: I did this example with 6 different “seed” lattitudes. I should have done it with 4 according to this inage: https://images.app.goo.gl/439evE6eYtyTzdGX9
+That’s 22.5deg and 67.5deg, pos and neg
+
+(Note: the idea of “the closer to the center, the weaker” creates the gulf stream, and accounts for the lack of a gulf stream in the southern hemisphere)
+
+
+Note: also, fix plate assigning by changing from bfs or random bfs to pseudo voronoi - every region gets assigned to its closest plate seed
+Can then add new feature: micro plates
+Randomly pick plate seeds, then steal the N+rand(-M,M) regions from existing plates
