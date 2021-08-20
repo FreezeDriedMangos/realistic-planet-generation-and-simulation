@@ -142,7 +142,8 @@ My major feature wishlist, in addition to my todolist:
     - Lakes can form more naturally 
     - Tides
 - Improve hotspot islands
-- Do terrain generation in two passes, first with original terrain generation, then smooth that out and use it as a base to a second pass using the "better plates" method
+- Do terrain generation in two passes, first with original terrain generation, then smooth that out and use it as a base to a second pass using the "better plates" method. Hopefully this will increase the amount of plains and plataus
+- add continental shelf around the edge of landmasses, longer shelves for larger landmasses
 - slow down and smooth out weather: advance weather only once every 10 weather steps. on the inbetween steps, lerp between the last results of advanceWeather and the next results
 
 Lastly, thanks for checking this out! I hope you find it useful or just cool to look at or something.
