@@ -1,4 +1,4 @@
-let VERSION = "v3.3.0"
+let VERSION = "v3.3.1"
 const TITLE = "Realistic Planet Generation"
 const PREPARE_EDGES_AND_TRIANGLES = true // WARNING: more or less doubles worldgen time
 

@@ -611,6 +611,32 @@ function assignElevation(isSecondPass, doingSecondPass) {
       }
    }
    
+// continental shelf
+   {
+      
+      for (let p = 0; p < params.worldgenSettings.numPlates; p++) {
+         let shelfEvents = [] // just r
+         
+         for (let i = 0; i < map.plate_r[p].length; i++) {
+            let r = map.plate_r[p][i];
+            
+            if (map.r_elevation[r] >= 0) {
+               shelfEvents.push([r])
+            }
+         }
+         
+         const shelfElev = -0.06 
+         for (let i = 0; i < map.plate_r[p].length; i++) {
+            let r = map.plate_r[p][i];
+            if(map.r_elevation[r] > shelfElev) continue
+            let shelfStrength = shelfEvents.reduce( (acc, [er]) => acc + 0.5/latlondist(map.r_latlon[r], map.r_latlon[er]), 0);
+            
+            shelfStrength = clamp(0, 1, shelfStrength)
+            map.r_elevation[r] += shelfStrength*clamp(0, 1, shelfElev-map.r_elevation[r])
+            map.r_elevation[r] = clamp(-1, 1, map.r_elevation[r])
+         }
+      }
+   }
    
    // volcanism
    {
