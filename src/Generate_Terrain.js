@@ -228,7 +228,7 @@ function createPlates(isSecondPass) {
    let plateColors = [];
    map.colors.plateColors = [];
    
-   if(params.worldgenSettings.betterPlates) {
+   if(params.worldgenSettings.betterPlates || isSecondPass) {
       let plateSeeds = [];
       
       const numMicroPlates = int(params.worldgenSettings.numPlates * params.worldgenSettings.propMicroPlates)

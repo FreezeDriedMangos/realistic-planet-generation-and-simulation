@@ -1,4 +1,4 @@
-let VERSION = "v3.3.1"
+let VERSION = "v4.0.0 alpha"
 const TITLE = "Realistic Planet Generation"
 const PREPARE_EDGES_AND_TRIANGLES = true // WARNING: more or less doubles worldgen time
 
@@ -111,6 +111,7 @@ let params = {
    
    update: false,
    button_forceUpdate: false,
+   button_tectonicsUpdate: false,
    
    // TODO: add all multipliers for event strengths for terrain gen here (under the same category)
 }
@@ -472,6 +473,13 @@ function draw() {
          generateMap();
          initWeather();
          map.voronoi.cellColors = map.colors.satellite
+      }
+      
+      if(params.button_tectonicsUpdate) {
+         advancePlateTectonics()
+         myprint("updated plate tectonics")
+         generateCurrents()
+         advanceWeather(false)
       }
       
    } catch (ex) { myprint(ex) }
