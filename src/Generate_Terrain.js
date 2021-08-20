@@ -228,7 +228,7 @@ function createPlates(isSecondPass) {
    let plateColors = [];
    map.colors.plateColors = [];
    
-   if(params.worldgenSettings.betterPlates || isSecondPass) {
+   if(params.worldgenSettings.betterPlates) {
       let plateSeeds = [];
       
       const numMicroPlates = int(params.worldgenSettings.numPlates * params.worldgenSettings.propMicroPlates)
@@ -538,6 +538,35 @@ function assignElevation(isSecondPass, doingSecondPass) {
       }
    }
    
+   
+   // continental shelf
+   {
+      
+      for (let p = 0; p < params.worldgenSettings.numPlates; p++) {
+         let shelfEvents = [] // just r
+         
+         for (let i = 0; i < map.plate_r[p].length; i++) {
+            let r = map.plate_r[p][i];
+            
+            if (map.r_elevation[r] >= 0) {
+               shelfEvents.push([r])
+            }
+         }
+         
+         const shelfElev = -0.01
+         for (let i = 0; i < map.plate_r[p].length; i++) {
+            let r = map.plate_r[p][i];
+            if(map.r_elevation[r] > shelfElev) continue
+            let shelfStrength = shelfEvents.reduce( (acc, [er]) => acc + 0.5/latlondist(map.r_latlon[r], map.r_latlon[er]), 0);
+            
+            shelfStrength = clamp(0, 1, shelfStrength)
+            map.r_elevation[r] += shelfStrength*clamp(0, 1, shelfElev-map.r_elevation[r])
+            map.r_elevation[r] = clamp(-1, 1, map.r_elevation[r])
+         }
+      }
+   }
+   
+   
    { // terrain smoothing by geologic age
       let newElevation = []
       for (let r = 0; r < params.worldgenSettings.numRegions; r++) {
@@ -565,6 +594,14 @@ function assignElevation(isSecondPass, doingSecondPass) {
       
       for (let r = 0; r < params.worldgenSettings.numRegions; r++) {
          map.r_elevation[r] = newElevation[r]
+      }
+   }
+   
+   
+   // noise
+   {
+      for (let r = 0; r < params.worldgenSettings.numRegions; r++) {
+         //map.r_elevation[r] = newElevation[r]
          
          
          let [lat, lon] = map.r_latlon[r]
@@ -573,7 +610,6 @@ function assignElevation(isSecondPass, doingSecondPass) {
          map.r_elevation[r]  = clamp(-1, 1, map.r_elevation[r])
       }
    }
-   
    
    
    // volcanism
@@ -661,9 +697,8 @@ function assignElevation(isSecondPass, doingSecondPass) {
    }
    
    
-   
    if(!isSecondPass && doingSecondPass) { 
-      // terrain smoothing by geologic age
+      // terrain smoothing by geologic age - if this is the first of two passes, any stuff here is capital o Old
       let newElevation = []
       for (let r = 0; r < params.worldgenSettings.numRegions; r++) {
          let neighbors = map.voronoi.cells[r].getNeighborIds();
@@ -681,11 +716,11 @@ function assignElevation(isSecondPass, doingSecondPass) {
          }
          neighborAverage /= neighbors.length+1
          
-         let age = 0.5*map.r_geologicAge[r] *2
+         let age = 1//map.r_geologicAge[r]*0.5+0.5//0.5*map.r_geologicAge[r] *2
          newElevation[r] = age*neighborAverage + (1-age)*map.r_elevation[r]
          
          // don't smooth away ineresting islands/pinensulas
-         if(map.r_elevation[r] >= 0 && neighborLandCount < neighborWaterCount) newElevation[r] = Math.max(0.1, newElevation[r])
+         //if(map.r_elevation[r] >= 0 && neighborLandCount < neighborWaterCount) newElevation[r] = Math.max(0.1, newElevation[r])
       }
       
       for (let r = 0; r < params.worldgenSettings.numRegions; r++) {
@@ -693,7 +728,7 @@ function assignElevation(isSecondPass, doingSecondPass) {
          
          
          let [lat, lon] = map.r_latlon[r]
-         map.r_elevation[r] += (2*RNGs.twoDNoise(params.noiseSettings.scale*(lat+90), params.noiseSettings.scale*lon) - 1)*params.noiseSettings.strength*(map.r_elevation >= 0? 0.1+0.9*getScrunchiness(r) : 1)
+         map.r_elevation[r] += (2*RNGs.twoDNoise(params.noiseSettings.scale*(lat+90), params.noiseSettings.scale*lon) - 1)*params.noiseSettings.strength//*(map.r_elevation >= 0? 0.1+0.9*getScrunchiness(r) : 1)
          
          map.r_elevation[r]  = clamp(-1, 1, map.r_elevation[r])
       }
