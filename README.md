@@ -1,6 +1,6 @@
-[Try it out here!](https://claydigiorgio.github.io/realistic-planet-generation-and-simulation/build/index.html)
+[Try it out here!](https://freezedriedmangos.github.io/realistic-planet-generation-and-simulation/build/index.html)
 
-[Click here to check out the source code on github](https://github.com/ClayDiGiorgio/realistic-planet-generation-and-simulation)
+[Click here to check out the source code on github](https://github.com/FreezeDriedMangos/realistic-planet-generation-and-simulation)
 
 ![An HD render of the mercador projection of a planet generated with this project](Showoff/IMG_1550.PNG?raw=true "HD Render of Default Seed")
 
@@ -55,7 +55,7 @@ The middle menu is the readout menu. Click on a region and see some particular v
 
 The right menu is the drawing menu. Click "Quads" and wait a while and you’ll get an HD render of your map! *Make sure the update box is UNCHECKED before clicking this.* Weather simulation steps are computationally expensive just by themselves, without the added strain of also making an HD render of every frame.
 
-[Try it out here!](https://claydigiorgio.github.io/realistic-planet-generation-and-simulation/build/index.html)
+[Try it out here!](https://freezedriedmangos.github.io/realistic-planet-generation-and-simulation/build/index.html)
 
 ## Notes and credit
 
