@@ -23,8 +23,13 @@ function generateMap() {
    resetRNGs();
    
    createVoronoi();
-   createPlates();
-   assignElevation();
+   createPlates(false);
+   assignElevation(false, params.worldgenSettings.twoPasses);
+   
+   if(params.worldgenSettings.twoPasses) {
+      createPlates(true);
+      assignElevation(true);
+   }
    
    //distance test
    let rcenter = 35;
@@ -214,7 +219,7 @@ function createVoronoi() {
    map.voronoi = result;
 }
 
-function createPlates() {
+function createPlates(isSecondPass) {
    // [rID: plateID];
    map.r_plate = []; 
    // [plateID: [rID]]
@@ -223,7 +228,7 @@ function createPlates() {
    let plateColors = [];
    map.colors.plateColors = [];
    
-   if(params.worldgenSettings.betterPlates) {
+   if(params.worldgenSettings.betterPlates || isSecondPass) {
       let plateSeeds = [];
       
       const numMicroPlates = int(params.worldgenSettings.numPlates * params.worldgenSettings.propMicroPlates)
@@ -351,18 +356,19 @@ function createPlates() {
    }
 }
 
-function assignElevation() {
-   
-   map.r_elevation = [];
-   for (let p = 0; p < params.worldgenSettings.numPlates; p++) {
-      let isOcean = RNGs.plateIsOcean() < params.worldgenSettings.propOceanPlates;
-      let elevation = isOcean ? -0.5 : 0.5;
-      let randrange = 0.5;
-      //elevation += Math.random() * randrange - randrange/2;
-      
-      for (let i = 0; i < map.plate_r[p].length; i++) {
-         let r = map.plate_r[p][i];
-         map.r_elevation[r] = elevation;
+function assignElevation(isSecondPass, doingSecondPass) {
+   if(!isSecondPass) {
+      map.r_elevation = [];
+      for (let p = 0; p < params.worldgenSettings.numPlates; p++) {
+         let isOcean = RNGs.plateIsOcean() < params.worldgenSettings.propOceanPlates;
+         let elevation = isOcean ? -0.5 : 0.5;
+         let randrange = 0.5;
+         //elevation += Math.random() * randrange - randrange/2;
+         
+         for (let i = 0; i < map.plate_r[p].length; i++) {
+            let r = map.plate_r[p][i];
+            map.r_elevation[r] = elevation;
+         }
       }
    }
    
@@ -490,7 +496,9 @@ function assignElevation() {
          let neighboringLandStrength = neighboringLandEvents.reduce( (acc, [er, strength]) => acc + strength/(1+latlondist(map.r_latlon[r], map.r_latlon[er])), 0);
          neighboringLandStrength = map.r_elevation[r] >= 0 ? 1 : neighboringLandStrength;
          
-         map.r_elevation[r] = params.plateEvents.mountainWeight*mountainStrength - params.plateEvents.subductionWeight*(subductionStrength) + params.plateEvents.antiSubductionWeight*antiSubductionStrength - params.plateEvents.riftValleyWeight*riftValleyStrength + params.plateEvents.neighboringOceanWeight*(1-(neighboringOceanStrength)) - params.plateEvents.neighboringLandWeight*(1-(neighboringLandStrength));
+         if(!isSecondPass) map.r_elevation[r] = 0
+         
+         map.r_elevation[r] += (params.plateEvents.mountainWeight*mountainStrength - params.plateEvents.subductionWeight*(subductionStrength) + params.plateEvents.antiSubductionWeight*antiSubductionStrength - params.plateEvents.riftValleyWeight*riftValleyStrength + params.plateEvents.neighboringOceanWeight*(1-(neighboringOceanStrength)) - params.plateEvents.neighboringLandWeight*(1-(neighboringLandStrength))) * (isSecondPass ? 0.1 : 1)
          
          
          // let [riftValleyDist, riftValleyStr, _] = riftValleyEvents.reduce( (acc, [er, strength]) => 
@@ -651,6 +659,46 @@ function assignElevation() {
          }
       }
    }
+   
+   
+   
+   if(!isSecondPass && doingSecondPass) { 
+      // terrain smoothing by geologic age
+      let newElevation = []
+      for (let r = 0; r < params.worldgenSettings.numRegions; r++) {
+         let neighbors = map.voronoi.cells[r].getNeighborIds();
+         let neighborAverage = map.r_elevation[r]
+         
+         let neighborWaterCount = 0
+         let neighborLandCount = 0
+         
+         for (let i = 0; i < neighbors.length; i++){
+            let nr = neighbors[i]
+            neighborAverage = neighborAverage + map.r_elevation[nr]
+            
+            if(map.r_elevation[nr] >= 0) neighborLandCount++
+            else neighborWaterCount++
+         }
+         neighborAverage /= neighbors.length+1
+         
+         let age = 0.5*map.r_geologicAge[r] *2
+         newElevation[r] = age*neighborAverage + (1-age)*map.r_elevation[r]
+         
+         // don't smooth away ineresting islands/pinensulas
+         if(map.r_elevation[r] >= 0 && neighborLandCount < neighborWaterCount) newElevation[r] = Math.max(0.1, newElevation[r])
+      }
+      
+      for (let r = 0; r < params.worldgenSettings.numRegions; r++) {
+         map.r_elevation[r] = newElevation[r]
+         
+         
+         let [lat, lon] = map.r_latlon[r]
+         map.r_elevation[r] += (2*RNGs.twoDNoise(params.noiseSettings.scale*(lat+90), params.noiseSettings.scale*lon) - 1)*params.noiseSettings.strength*(map.r_elevation >= 0? 0.1+0.9*getScrunchiness(r) : 1)
+         
+         map.r_elevation[r]  = clamp(-1, 1, map.r_elevation[r])
+      }
+   }
+   
    
    
    

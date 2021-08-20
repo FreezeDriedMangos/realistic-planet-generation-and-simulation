@@ -1,4 +1,4 @@
-let VERSION = "v3.0.0"
+let VERSION = "v3.1.0"
 const TITLE = "Realistic Planet Generation"
 const PREPARE_EDGES_AND_TRIANGLES = true // WARNING: more or less doubles worldgen time
 
@@ -30,6 +30,7 @@ let params = {
    
    worldgenSettings: {
       betterPlates: false,
+      twoPasses: true, 
       
       numRegions: 5545,
       max_numRegions: 10000,
@@ -43,7 +44,7 @@ let params = {
       min_numPlates: 2,
       step_numPlates: 1,
       
-      propMicroPlates : 0.44,
+      propMicroPlates : 0.73, //0.44,
       
       minMicroPlateSize: 10,
       max_minMicroPlateSize: 61,
