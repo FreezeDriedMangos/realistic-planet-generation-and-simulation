@@ -143,7 +143,6 @@ My major feature wishlist, in addition to my todolist:
     - Tides
 - Improve hotspot islands
 - Improve two pass terrain generation. Involve some actual continental drift instead of just the "plate events" system, perhaps do this step-by-step amd add a ui button to advance to the next step
-- add continental shelf around the edge of landmasses, longer shelves for larger landmasses
 - slow down and smooth out weather: advance weather only once every 10 weather steps. on the inbetween steps, lerp between the last results of advanceWeather and the next results
 
 Lastly, thanks for checking this out! I hope you find it useful or just cool to look at or something.
