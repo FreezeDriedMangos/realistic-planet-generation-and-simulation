@@ -1,4 +1,8 @@
+*_Please scroll down to read the instructions._*
+
 [Try it out here!](https://freezedriedmangos.github.io/realistic-planet-generation-and-simulation/build/index.html)
+
+You will not see anything after starting the program, this is expected. I wrote in the instructions how to start the generation/simulation.
 
 [Click here to check out the source code on github](https://github.com/FreezeDriedMangos/realistic-planet-generation-and-simulation)
 
@@ -7,10 +11,6 @@
 # realistic-planet-generation-and-simulation
 
 Generation of a planet through plate tectonics and simulation of weather, climate, and ocean currents.
-
-*_Please scroll down to read the instructions._*
-
-You will not see anything after starting the program, this is expected. I wrote in the instructions how to start the generation/simulation.
 
 ## Features
 
