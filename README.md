@@ -12,6 +12,8 @@ You will not see anything after starting the program, this is expected. I wrote 
 
 Generation of a planet through plate tectonics and simulation of weather, climate, and ocean currents.
 
+Inspired by RedblobGames' [similar project](https://github.com/redblobgames/1843-planet-generation).
+
 ## Features
 
 - Terrain generated via plate tectonics 
